@@ -1,2 +1,2 @@
 # svm-iris--finding-species
-svm-iris-to-find-species
+a code in python used to find the appropriate typies among them --- setosa&&versicolor&&virginica
