@@ -1,0 +1,81 @@
+import pandas as pd
+import numpy as np
+from matplotlib import pyplot as plt
+from sklearn import svm,metrics,cross_validation,datasets
+# 导入数据集
+iris = datasets.load_iris()
+X = iris.data[:, :2]#遍取行，仅取出两列
+y = iris.target#花的种类？0、1、2
+
+# 创建支持向量机实例，并拟合出数据
+C = 1.0  # SVM正则化参数
+#clf = svm.SVC(kernel='linear', C=C).fit(X, y)
+# 线性核  #来来来，进行训练了即已经训练了
+
+
+clf = svm.SVC(kernel='rbf', gamma=0.7, C=C).fit(X, y) # 径向基核
+
+#poly_svc = svm.SVC(kernel='poly', degree=3, C=C).fit(X, y) # 多项式核
+#lin_svc = svm.LinearSVC(C=C).fit(X, y) #线性核
+
+
+#这里设置C明显多余了，默认值为1.0
+#一般用clf = SVC()
+#然后再使用clf.fit(X,y)
+#SVC(C=1.0, cache_size=200, class_weight=None, coef0=0.0,
+  #  decision_function_shape=None, degree=3, gamma='auto', kernel='rbf',
+  #  max_iter=-1, probability=False, random_state=None, shrinking=True,
+  #  tol=0.001, verbose=False)
+#　kernel='linear'时，为线性核，C越大分类效果越好，但有可能会过拟合（defaul C=1）。
+
+#kernel='rbf'时（default），为高斯核，gamma值越小，分类界面越连续；gamma值越大，分类界面越“散”，分类效果越好，但有可能会过拟合。
+
+#decision_function_shape='ovr'时，为one v rest，即一个类别与其他类别进行划分，
+
+#decision_function_shape='ovo'时，为one v one，即将类别两两之间进行划分，用二分类的方法模拟多分类的结果。
+
+# 创建网格，以绘制图像
+x_min, x_max = X[:, 0].min() - 1, X[:, 0].max() + 1#以第一列中的最小值，最大值为边界
+y_min, y_max = X[:, 1].min() - 1, X[:, 1].max() + 1#以第二列中的最小值、最大值为边界
+h = .01  # 网格中的步长
+xx, yy = np.meshgrid(np.arange(x_min, x_max, h),np.arange(y_min, y_max, h))#构建一个二维数组
+#print(xx)得到的是由一组相同行向量构成的向量
+#print(yy)得到的是由一组相同列向量构成的向量
+
+# 图的标题
+titles = ['SVC with RBF kernel']
+#我们这里就用liner来进行划边界和训练
+
+#画图阶段
+#Z = clf.predict(np.c_[xx.ravel(), yy.ravel('F')])
+#res = clf.predict(np.c_[xx.ravel(), yy.ravel('F')])
+res = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+res = res.reshape(xx.shape)
+#xx.shape获取了xx的行和列的属性，几行几列
+#将属性重新输入给res,重新分配
+plt.contourf(xx, yy, res, cmap=plt.cm.Paired, alpha=0.8)
+
+#高亮度cmap=plt.cm.Paired相近颜色输出
+#plt.scatter(INPUTX,INPUTY,c='k',marker='*')
+# 将训练数据以离散点的形式绘制出来
+plt.scatter(X[:, 0], X[:, 1], c=y, cmap=plt.cm.Paired)
+#要考察
+plt.xlabel('Sepal length')
+plt.ylabel('Sepal width')
+plt.xlim(xx.min(), xx.max())#设置边界宽度
+plt.ylim(yy.min(), yy.max())#设置边界高度
+plt.xticks(())#画x轴刻度用的
+plt.yticks(())#画y轴刻度用的
+plt.title(titles[0])
+print('请你输入长度(sepal_length)：')
+INPUTX = input()
+print('请你输入宽度(sepal_width)：')
+INPUTY = input()
+M = clf.predict([[INPUTX,INPUTY]])
+if M==([0]):
+   print('setosa')
+elif M ==([1]):
+    print('versicolor')
+else: 
+    print('virginica')
+plt.show()
